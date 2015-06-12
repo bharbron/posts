@@ -111,6 +111,14 @@ def post_edit(id):
   # Get the post from the database
   post = session.query(models.Post).get(id)
   
+  # Check that the JSON supplied is valid
+  # If not you return a 422 Unprocessable Entity
+  try:
+    validate(data, post_schema)
+  except ValidationError as error:
+    data = {"message": error.message}
+    return Response(json.dumps(data), 422, mimetype="application/json")
+  
   # Update the post
   post.title = data["title"]
   post.body = data["body"]

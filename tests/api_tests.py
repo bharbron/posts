@@ -312,6 +312,54 @@ class TestAPI(unittest.TestCase):
       self.assertEqual(post.title, "Edited post B")
       self.assertEqual(post.body, "Now an edited test")
       
+    def testEditPostInvalidData(self):
+      """ Editing a post with an invalid body """
+      postA = models.Post(title="Example post A", body="Just a test")
+      postB = models.Post(title="Example post B", body="Still a test")
+      
+      session.add_all([postA, postB])
+      session.commit()
+      
+      data = {
+        "title": "Example Post",
+        "body": 32
+      }
+      
+      response = self.client.post("/api/posts/{}".format(postB.id),
+                                 data=json.dumps(data),
+                                 content_type="application/json",
+                                 headers=[("Accept", "application/json")]
+                                 )
+      
+      self.assertEqual(response.status_code, 422)
+      
+      data = json.loads(response.data)
+      self.assertEqual(data["message"], "32 is not of type 'string'")
+    
+    def testEditPostMissingData(self):
+      """ Posting a post with a missing body """
+      postA = models.Post(title="Example post A", body="Just a test")
+      postB = models.Post(title="Example post B", body="Still a test")
+      
+      session.add_all([postA, postB])
+      session.commit()
+      
+      data = {
+        "title": "Example Post",
+      }
+      
+      response = self.client.post("/api/posts/{}".format(postB.id),
+                                 data=json.dumps(data),
+                                 content_type="application/json",
+                                 headers=[("Accept", "application/json")]
+                                 )
+      
+      self.assertEqual(response.status_code, 422)
+      self.assertEqual(response.mimetype, "application/json")
+      
+      data = json.loads(response.data)
+      self.assertEqual(data["message"], "'body' is a required property")
+      
 
 if __name__ == "__main__":
     unittest.main()
