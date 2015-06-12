@@ -100,3 +100,25 @@ def posts_post():
   data = json.dumps(post.as_dictionary())
   headers = {"Location": url_for("post_get", id=post.id)}
   return Response(data, 201, headers=headers, mimetype="application/json")
+
+@app.route("/api/posts/<int:id>", methods=["POST"])
+@decorators.accept("application/json")
+@decorators.require("application/json")
+def post_edit(id):
+  """ Edit an existing post """
+  data = request.json
+  
+  # Get the post from the database
+  post = session.query(models.Post).get(id)
+  
+  # Update the post
+  post.title = data["title"]
+  post.body = data["body"]
+  session.commit()
+  
+  # Return a 200 Success, containing the edited post as a JSON and with the
+  # Location header set to the location of the post
+  data = json.dumps(post.as_dictionary())
+  headers = {"Location": url_for("post_get", id=post.id)}
+  return Response(data, 200, headers=headers, mimetype="application/json")
+  

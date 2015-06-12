@@ -300,6 +300,8 @@ class TestAPI(unittest.TestCase):
       
       self.assertEqual(response.status_code, 200)
       self.assertEqual(response.mimetype, "application/json")
+      self.assertEqual(urlparse(response.headers.get("Location")).path,
+                      "/api/posts/{}".format(postB.id))
       
       data = json.loads(response.data)
       self.assertEqual(data["id"], postB.id)
