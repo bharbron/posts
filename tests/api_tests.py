@@ -4,7 +4,9 @@ import json
 from urlparse import urlparse
 
 # Configure our app to use the testing databse
-os.environ["CONFIG_PATH"] = "posts.config.TestingConfig"
+# But first check to see if we're already running using the Travis-CI config
+if os.environ["CONFIG_PATH"] != "posts.config.TravisConfig":
+  os.environ["CONFIG_PATH"] = "posts.config.TestingConfig"
 
 from posts import app
 from posts import models
