@@ -242,6 +242,74 @@ class TestAPI(unittest.TestCase):
       
       data = json.loads(response.data)
       self.assertEqual(data["message"], "Request must contain application/json data")
+      
+    def testInvalidData(self):
+      """ Posting a post with an invalid body """
+      data = {
+        "title": "Example Post",
+        "body": 32
+      }
+      
+      response = self.client.post("/api/posts",
+                                 data=json.dumps(data),
+                                 content_type="application/json",
+                                 headers=[("Accept", "application/json")]
+                                 )
+      
+      self.assertEqual(response.status_code, 422)
+      
+      data = json.loads(response.data)
+      self.assertEqual(data["message"], "32 is not of type 'string'")
+      
+    def testMissingData(self):
+      """ Posting a post with a missing body """
+      data = {
+        "title": "Example Post",
+      }
+      
+      response = self.client.post("/api/posts",
+                                 data=json.dumps(data),
+                                 content_type="application/json",
+                                 headers=[("Accept", "application/json")]
+                                 )
+      
+      self.assertEqual(response.status_code, 422)
+      self.assertEqual(response.mimetype, "application/json")
+      
+      data = json.loads(response.data)
+      self.assertEqual(data["message"], "'body' is a required property")
+      
+    def testEditPost(self):
+      """ Editing a single post """
+      postA = models.Post(title="Example post A", body="Just a test")
+      postB = models.Post(title="Example post B", body="Still a test")
+      
+      session.add_all([postA, postB])
+      session.commit()
+      
+      data = {
+        "title": "Edited post B",
+        "body": "Now an edited test"
+      }
+      
+      response = self.client.post("/api/posts/{}".format(postB.id),
+                                 data=json.dumps(data),
+                                 content_type="application/json",
+                                 headers=[("Accept", "application/json")]
+                                 )
+      
+      self.assertEqual(response.status_code, 200)
+      self.assertEqual(response.mimetype, "application/json")
+      
+      data = json.loads(response.data)
+      self.assertEqual(data["id"], postB.id)
+      self.assertEqual(data["title"], "Edited post B")
+      self.assertEqual(data["body"], "Now an edited test")
+      
+      post = session.query(models.Post).get(postB.id)
+      self.assertEqual(post.title, "Edited post B")
+      self.assertEqual(post.body, "Now an edited test")
+      
 
 if __name__ == "__main__":
     unittest.main()
