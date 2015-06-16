@@ -5,7 +5,7 @@ from urlparse import urlparse
 
 # Configure our app to use the testing databse
 # But first check to see if we're already running using the Travis-CI config
-if os.environ["CONFIG_PATH"] != "posts.config.TravisConfig":
+if "CONFIG_PATH" not in os.environ or os.environ["CONFIG_PATH"] != "posts.config.TravisConfig":
   os.environ["CONFIG_PATH"] = "posts.config.TestingConfig"
 
 from posts import app
@@ -294,7 +294,7 @@ class TestAPI(unittest.TestCase):
         "body": "Now an edited test"
       }
       
-      response = self.client.post("/api/posts/{}".format(postB.id),
+      response = self.client.put("/api/posts/{}".format(postB.id),
                                  data=json.dumps(data),
                                  content_type="application/json",
                                  headers=[("Accept", "application/json")]
@@ -327,7 +327,7 @@ class TestAPI(unittest.TestCase):
         "body": 32
       }
       
-      response = self.client.post("/api/posts/{}".format(postB.id),
+      response = self.client.put("/api/posts/{}".format(postB.id),
                                  data=json.dumps(data),
                                  content_type="application/json",
                                  headers=[("Accept", "application/json")]
@@ -350,7 +350,7 @@ class TestAPI(unittest.TestCase):
         "title": "Example Post",
       }
       
-      response = self.client.post("/api/posts/{}".format(postB.id),
+      response = self.client.put("/api/posts/{}".format(postB.id),
                                  data=json.dumps(data),
                                  content_type="application/json",
                                  headers=[("Accept", "application/json")]

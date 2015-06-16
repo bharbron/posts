@@ -101,7 +101,7 @@ def posts_post():
   headers = {"Location": url_for("post_get", id=post.id)}
   return Response(data, 201, headers=headers, mimetype="application/json")
 
-@app.route("/api/posts/<int:id>", methods=["POST"])
+@app.route("/api/posts/<int:id>", methods=["PUT"])
 @decorators.accept("application/json")
 @decorators.require("application/json")
 def post_edit(id):
